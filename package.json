@@ -1,0 +1,22 @@
+{
+  "name": "dice-of-catan",
+  "version": "1.0.0",
+  "description": "Probabilistically fair dice",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ali-anwar/dice-of-catan-node.git"
+  },
+  "author": "Ali Anwar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ali-anwar/dice-of-catan-node/issues"
+  },
+  "homepage": "https://github.com/ali-anwar/dice-of-catan-node#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
