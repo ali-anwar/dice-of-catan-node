@@ -3,14 +3,14 @@ var uuid = require('uuid');
 
 class Dice {
   constructor(id) {
-    this.initializeCounts();
+    this.initialize();
 
     if(id) {
       this.uniqueID = id;
-      this.readCounts();
+      this.readData();
     } else {
       this.uniqueID = uuid.v4();
-      this.saveCounts();
+      this.saveData();
     }
   }
 
@@ -18,9 +18,12 @@ class Dice {
     return 10;
   }
 
-  initializeCounts() {
-    this.counts = this.initialCounts();
-    this.sum = this.counts.reduce((a, b) => a + b, 0);
+  initialize() {
+    this.data = {
+      counts: this.initialCounts(),
+      history: this.initialCounts(0),
+      totalRolls: 0
+    }
   }
 
   static find(id) {
@@ -34,15 +37,32 @@ class Dice {
   }
 
   pureRandom(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+    return Math.floor(Math.random() * (max - min)) + min;
+  }
+
+  maxMinCount() {
+    return 15;
+  }
+
+  normalizeCounts() {
+    var i;
+    var min = Math.min(...this.data.counts);
+
+    if(min > this.maxMinCount()) {
+      for (i = 0; i < this.totalPossibleNumbers(); i++) {
+        this.data.counts[i] = Math.floor(this.data.counts[i] * this.initialCount() / this.maxMinCount());
+      }
+    }
   }
 
   gotNumber(number) {
     var index = number - this.minForDice();
 
-    this.counts[index] += 1;
-    this.sum += 1;
-    this.saveCounts()
+    this.data.counts[index] += 1;
+    this.data.history[index] += 1;
+    this.data.totalRolls += 1;
+
+    this.normalizeCounts();
   }
 
   minForDice() {
@@ -53,8 +73,63 @@ class Dice {
     return 12;
   }
 
+  maxCount() {
+    return 100;
+  }
+
+  numberProbabilities() {
+    var i, sum = 0;
+    var probabilities = [];
+
+    for (i = 0; i < Math.ceil(this.totalPossibleNumbers() / 2.0); i++) {
+      sum += 1
+      probabilities[i] = sum;
+      probabilities[this.totalPossibleNumbers() - i - 1] = sum;
+    }
+
+    return probabilities;
+  }
+
+  totalPossibleNumbers() {
+    return this.maxForDice() - this.minForDice() + 1;
+  }
+
+  generateModel() {
+    var i, value;
+    var probabilities = this.numberProbabilities()
+    var model = []
+
+    for (i = 0; i < this.totalPossibleNumbers(); i++) {
+      value = Math.ceil(this.maxCount() * probabilities[i] / this.data.counts[i]);
+      model.push(value)
+    }
+
+    return model;
+  }
+
+  nextNumberFromModel() {
+    var i;
+    var model = this.generateModel()
+    var sum = model.reduce((a, b) => a + b, 0);
+    var pureRandomNumber = this.pureRandom(0, sum);
+
+    sum = 0;
+    for (i = 0; i < this.totalPossibleNumbers(); i++) {
+      sum += model[i];
+      if(pureRandomNumber < sum) {
+        return this.minForDice() + i;
+      }
+    }
+
+    return -1;
+  }
+
   nextNumber() {
-    var number = this.pureRandom(this.minForDice(), this.maxForDice());
+    var number = this.nextNumberFromModel();
+
+    if(number < 0) {
+      throw("Error");
+    }
 
     this.gotNumber(number);
 
@@ -62,10 +137,10 @@ class Dice {
   }
 
   splitNumber(number) {
-    var dice1Number = this.pureRandom(1, number - 1);
+    var dice1Number = this.pureRandom(1, number);
     var dice2Number = number - dice1Number;
 
-    if(this.pureRandom(0, 1) == 0) {
+    if(this.pureRandom(0, 2) == 0) {
       return [dice1Number, dice2Number];
     }
 
@@ -84,50 +159,61 @@ class Dice {
     };
   }
 
-  countsFilePath() {
+  batchSize() {
+    return 100;
+  }
+
+  multiRoll() {
+    var i;
+    var rolls = []
+
+    for (i = 0; i < this.batchSize(); i++) {
+      rolls.push(this.roll());
+    }
+
+    this.saveData();
+
+    return {
+      rolls: rolls,
+      history: this.data.history
+    }
+  }
+
+  dataFilePath() {
     return `counts/${this.id()}.json`;
   }
 
-  data() {
-    return {
-      sum: this.sum,
-      counts: this.counts
-    }
-  }
-
-  countsToJson() {
-    return JSON.stringify(this.data());
+  dataToJson() {
+    return JSON.stringify(this.data);
   }
 
 
-  readCounts() {
+  readData() {
     try {
-      var data = fs.readFileSync(this.countsFilePath());
-      var diceData = JSON.parse(data);
+      var data = fs.readFileSync(this.dataFilePath());
 
-      this.counts = diceData['counts']
-      this.sum = diceData['sum']
+      this.data = JSON.parse(data);
       this.valid = true;
     } catch(err) {
       console.error(err);
     }
   }
 
-  saveCounts() {
+  saveData() {
     try {
-      fs.writeFileSync(this.countsFilePath(), this.countsToJson());
+      fs.writeFileSync(this.dataFilePath(), this.dataToJson());
       this.valid = true;
     } catch(err) {
       console.error(err);
     }
   }
 
-  initialCounts() {
+  initialCounts(initialValue = this.initialCount()) {
     var i;
     var counts = [];
 
-    for (i = 0; i < this.maxForDice(); i++) {
-      counts.push(this.initialCount());
+    for (i = 0; i < this.totalPossibleNumbers(); i++) {
+      counts.push(initialValue);
     }
 
     return counts;

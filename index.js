@@ -18,7 +18,7 @@ app.get('/dice/:diceID/roll', (req, res) => {
   var dice = Dice.find(req.params.diceID);
 
   if(dice) {
-    res.send(dice.roll())
+    res.send(dice.multiRoll())
   } else {
     res.status(404).json(jsonError("Dice not found"))
   }
