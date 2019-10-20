@@ -5,7 +5,7 @@ const Dice = require('./dice');
 const app = express();
 const port = 4337;
 
-var jsonError = (message) => {
+var jsonError = message => {
   return {
     error: message,
   };
@@ -25,7 +25,6 @@ app.get('/dice/:diceID/roll', (req, res) => {
     res.status(404).json(jsonError('Dice not found'));
   }
 });
-
 
 app.get('/', (req, res) => {
   res.send('Welcome to Dice of Catan!');

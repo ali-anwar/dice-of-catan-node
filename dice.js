@@ -53,7 +53,7 @@ class Dice {
     if (min > this.maxMinCount()) {
       for (i = 0; i < this.totalPossibleNumbers(); i++) {
         this.data.counts[i] = Math.floor(
-          this.data.counts[i] * this.initialCount() / this.maxMinCount()
+          (this.data.counts[i] * this.initialCount()) / this.maxMinCount()
         );
       }
     }
@@ -82,7 +82,8 @@ class Dice {
   }
 
   numberProbabilities() {
-    var i; var sum = 0;
+    var i;
+    var sum = 0;
     var probabilities = [];
 
     for (i = 0; i < Math.ceil(this.totalPossibleNumbers() / 2.0); i++) {
@@ -105,7 +106,7 @@ class Dice {
 
     for (i = 0; i < this.totalPossibleNumbers(); i++) {
       value = Math.ceil(
-        this.maxCount() * probabilities[i] / this.data.counts[i]
+        (this.maxCount() * probabilities[i]) / this.data.counts[i]
       );
       model.push(value);
     }
@@ -150,7 +151,9 @@ class Dice {
   }
 
   roll() {
-    var dice1Number; var dice2Number; var nextNumber = this.nextNumber();
+    var dice1Number;
+    var dice2Number;
+    var nextNumber = this.nextNumber();
 
     [dice1Number, dice2Number] = this.splitNumber(nextNumber);
 
@@ -188,7 +191,6 @@ class Dice {
   dataToJson() {
     return JSON.stringify(this.data);
   }
-
 
   readData() {
     try {
