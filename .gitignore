@@ -1,3 +1,5 @@
+counts/*.json
+
 # Logs
 logs
 *.log

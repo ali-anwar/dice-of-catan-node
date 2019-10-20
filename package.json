@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/ali-anwar/dice-of-catan-node#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "uuid": "^3.3.3"
   }
 }
