@@ -1,11 +1,13 @@
-var fs = require("fs")
+'use strict';
+
+var fs = require('fs');
 var uuid = require('uuid');
 
 class Dice {
   constructor(id) {
     this.initialize();
 
-    if(id) {
+    if (id) {
       this.uniqueID = id;
       this.readData();
     } else {
@@ -22,14 +24,14 @@ class Dice {
     this.data = {
       counts: this.initialCounts(),
       history: this.initialCounts(0),
-      totalRolls: 0
-    }
+      totalRolls: 0,
+    };
   }
 
   static find(id) {
     var dice = new Dice(id);
 
-    if(dice.valid) {
+    if (dice.valid) {
       return dice;
     }
 
@@ -48,9 +50,11 @@ class Dice {
     var i;
     var min = Math.min(...this.data.counts);
 
-    if(min > this.maxMinCount()) {
+    if (min > this.maxMinCount()) {
       for (i = 0; i < this.totalPossibleNumbers(); i++) {
-        this.data.counts[i] = Math.floor(this.data.counts[i] * this.initialCount() / this.maxMinCount());
+        this.data.counts[i] = Math.floor(
+          this.data.counts[i] * this.initialCount() / this.maxMinCount()
+        );
       }
     }
   }
@@ -78,11 +82,11 @@ class Dice {
   }
 
   numberProbabilities() {
-    var i, sum = 0;
+    var i; var sum = 0;
     var probabilities = [];
 
     for (i = 0; i < Math.ceil(this.totalPossibleNumbers() / 2.0); i++) {
-      sum += 1
+      sum += 1;
       probabilities[i] = sum;
       probabilities[this.totalPossibleNumbers() - i - 1] = sum;
     }
@@ -96,12 +100,14 @@ class Dice {
 
   generateModel() {
     var i, value;
-    var probabilities = this.numberProbabilities()
-    var model = []
+    var probabilities = this.numberProbabilities();
+    var model = [];
 
     for (i = 0; i < this.totalPossibleNumbers(); i++) {
-      value = Math.ceil(this.maxCount() * probabilities[i] / this.data.counts[i]);
-      model.push(value)
+      value = Math.ceil(
+        this.maxCount() * probabilities[i] / this.data.counts[i]
+      );
+      model.push(value);
     }
 
     return model;
@@ -109,27 +115,23 @@ class Dice {
 
   nextNumberFromModel() {
     var i;
-    var model = this.generateModel()
+    var model = this.generateModel();
     var sum = model.reduce((a, b) => a + b, 0);
     var pureRandomNumber = this.pureRandom(0, sum);
 
     sum = 0;
     for (i = 0; i < this.totalPossibleNumbers(); i++) {
       sum += model[i];
-      if(pureRandomNumber < sum) {
+      if (pureRandomNumber < sum) {
         return this.minForDice() + i;
       }
     }
 
-    return -1;
+    throw new Error('Our pure random number does not fall within the model');
   }
 
   nextNumber() {
     var number = this.nextNumberFromModel();
-
-    if(number < 0) {
-      throw("Error");
-    }
 
     this.gotNumber(number);
 
@@ -140,7 +142,7 @@ class Dice {
     var dice1Number = this.pureRandom(1, number);
     var dice2Number = number - dice1Number;
 
-    if(this.pureRandom(0, 2) == 0) {
+    if (this.pureRandom(0, 2) === 0) {
       return [dice1Number, dice2Number];
     }
 
@@ -148,14 +150,14 @@ class Dice {
   }
 
   roll() {
-    var dice1Number, dice2Number, nextNumber = this.nextNumber();
+    var dice1Number; var dice2Number; var nextNumber = this.nextNumber();
 
     [dice1Number, dice2Number] = this.splitNumber(nextNumber);
 
     return {
       dice1: dice1Number,
       dice2: dice2Number,
-      sum: nextNumber
+      sum: nextNumber,
     };
   }
 
@@ -165,7 +167,7 @@ class Dice {
 
   multiRoll() {
     var i;
-    var rolls = []
+    var rolls = [];
 
     for (i = 0; i < this.batchSize(); i++) {
       rolls.push(this.roll());
@@ -175,8 +177,8 @@ class Dice {
 
     return {
       rolls: rolls,
-      history: this.data.history
-    }
+      history: this.data.history,
+    };
   }
 
   dataFilePath() {
@@ -194,7 +196,7 @@ class Dice {
 
       this.data = JSON.parse(data);
       this.valid = true;
-    } catch(err) {
+    } catch (err) {
       console.error(err);
     }
   }
@@ -203,7 +205,7 @@ class Dice {
     try {
       fs.writeFileSync(this.dataFilePath(), this.dataToJson());
       this.valid = true;
-    } catch(err) {
+    } catch (err) {
       console.error(err);
     }
   }
