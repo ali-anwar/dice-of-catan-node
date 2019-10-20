@@ -1,7 +1,7 @@
 const express = require('express')
 const Dice = require('./dice')
 const app = express()
-const port = 3000
+const port = 4337
 
 var jsonError = (message) => {
   return {
@@ -29,4 +29,4 @@ app.get('/', (req, res) => {
   res.send('Welcome to Dice of Catan!')
 })
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`Dice on Catan listening on port ${port}!`))
