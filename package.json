@@ -4,6 +4,7 @@
   "description": "Probabilistically fair dice",
   "main": "index.js",
   "scripts": {
+    "pretest": "eslint --ignore-path .gitignore .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,5 +20,9 @@
   "dependencies": {
     "express": "^4.17.1",
     "uuid": "^3.3.3"
+  },
+  "devDependencies": {
+    "eslint": "^6.5.1",
+    "eslint-config-strongloop": "^2.1.0"
   }
 }
