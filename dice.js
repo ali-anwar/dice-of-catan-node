@@ -140,14 +140,12 @@ class Dice {
   }
 
   splitNumber(number) {
-    var dice1Number = this.pureRandom(1, number);
+    var min = Math.max(1, number - 6);
+    var max = Math.min(7, number);
+    var dice1Number = this.pureRandom(min, max);
     var dice2Number = number - dice1Number;
 
-    if (this.pureRandom(0, 2) === 0) {
-      return [dice1Number, dice2Number];
-    }
-
-    return [dice2Number, dice1Number];
+    return [dice1Number, dice2Number];
   }
 
   roll() {
