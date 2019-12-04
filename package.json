@@ -4,6 +4,8 @@
   "description": "Probabilistically fair dice",
   "main": "index.js",
   "scripts": {
+    "dev": "node index.js",
+    "deploy": "pm2 restart index.js --name dice-of-catan",
     "pretest": "eslint --ignore-path .gitignore .",
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm counts/*.json"
