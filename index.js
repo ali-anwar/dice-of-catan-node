@@ -3,7 +3,7 @@
 const express = require('express');
 const Dice = require('./dice');
 const app = express();
-const port = 4337;
+const port = process.env.PORT || 4337;
 
 var jsonError = message => {
   return {
